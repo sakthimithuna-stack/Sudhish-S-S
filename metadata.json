@@ -1,0 +1,6 @@
+{
+  "name": "VORTEX OMNI: AI Creation & Execution Platform",
+  "description": "Comprehensive modular AI platform combining multi-model orchestration, next-gen app building, live dev workspace, multimedia studios, agent workflows, publishing center, and creator monetization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
