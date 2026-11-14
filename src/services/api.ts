@@ -67,7 +67,14 @@ export function streamChat(
   callbacks: StreamCallbacks
 ): () => void {
   const controller = new AbortController();
-  const activeSignal = options.signal || controller.signal;
+  const externalSignal = options.signal;
+  const abortFromExternalSignal = () => controller.abort(externalSignal?.reason);
+
+  if (externalSignal?.aborted) {
+    abortFromExternalSignal();
+  } else {
+    externalSignal?.addEventListener('abort', abortFromExternalSignal, { once: true });
+  }
 
   (async () => {
     try {
@@ -81,7 +88,7 @@ export function streamChat(
           preferredProvider: options.preferredProvider,
           cacheBypass: options.cacheBypass,
         }),
-        signal: activeSignal,
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -138,10 +145,12 @@ export function streamChat(
       } else {
         callbacks.onError?.(err?.message || 'Streaming failed');
       }
+    } finally {
+      externalSignal?.removeEventListener('abort', abortFromExternalSignal);
     }
   })();
 
-  // Return cancel function
+  // Return cancel function; aborts the same signal used by fetch.
   return () => {
     controller.abort();
   };
